@@ -43,6 +43,7 @@ private:
 	bool preparePlan();
 	bool createPlan();
 	void publishPlan();
+	double H(int x, int y, int g_x, int g_y);
 
 	// Everything related to ROS
 	tf::TransformListener mTfListener;
@@ -71,6 +72,7 @@ private:
 	bool mHasNewMap;
 	bool mIsPaused;
 	bool mIsStopped;
+	bool mDijkstraFlag;
 	int mStatus;
 	int mRobotID;
 	unsigned int mGoalPoint;

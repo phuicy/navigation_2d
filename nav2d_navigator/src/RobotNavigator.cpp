@@ -50,6 +50,8 @@ RobotNavigator::RobotNavigator()
 	robotNode.param("explore_action_topic", mExploreActionTopic, std::string(NAV_EXPLORE_ACTION));
 	robotNode.param("getmap_action_topic", mGetMapActionTopic, std::string(NAV_GETMAP_ACTION));
 	robotNode.param("localize_action_topic", mLocalizeActionTopic, std::string(NAV_LOCALIZE_ACTION));
+	robotNode.param("search_algorithm", mDijkstraFlag, true);
+
 
 	// Apply tf_prefix to all used frame-id's
 	mRobotFrame = mTfListener.resolve(mRobotFrame);
@@ -260,46 +262,94 @@ bool RobotNavigator::createPlan()
 	double linear = mCurrentMap.getResolution();
 	double diagonal = std::sqrt(2.0) * linear;
 	
-	// Do full search with Dijkstra-Algorithm
-	while(!queue.empty())
-	{
-		// Get the nearest cell from the queue
-		next = queue.begin();
-		distance = next->first;
-		index = next->second;
-		queue.erase(next);
-		
-		if(mCurrentPlan[index] >= 0 && mCurrentPlan[index] < distance) continue;
-		
-//		if(index == mStartPoint) break;
-		
-		// Add all adjacent cells
-		if(!mCurrentMap.getCoordinates(x, y, index)) continue;
-		std::vector<unsigned int> ind;
-		ind.push_back(index - 1);
-		ind.push_back(index + 1);
-		ind.push_back(index - mCurrentMap.getWidth());
-		ind.push_back(index + mCurrentMap.getWidth());
-		ind.push_back(index - mCurrentMap.getWidth() - 1);
-		ind.push_back(index - mCurrentMap.getWidth() + 1);
-		ind.push_back(index + mCurrentMap.getWidth() - 1);
-		ind.push_back(index + mCurrentMap.getWidth() + 1);
-			
-		for(unsigned int it = 0; it < ind.size(); it++)
+	if(mDijkstraFlag){
+	
+		// Do full search with Dijkstra-Algorithm
+		while(!queue.empty())
 		{
-			unsigned int i = ind[it];
-			if(mCurrentMap.isFree(i))
+			// Get the nearest cell from the queue
+			next = queue.begin();
+			distance = next->first;
+			index = next->second;
+			queue.erase(next);
+		
+			if(mCurrentPlan[index] >= 0 && mCurrentPlan[index] < distance) continue;
+		
+	//		if(index == mStartPoint) break;
+		
+			// Add all adjacent cells
+			if(!mCurrentMap.getCoordinates(x, y, index)) continue;
+			std::vector<unsigned int> ind;
+			ind.push_back(index - 1);
+			ind.push_back(index + 1);
+			ind.push_back(index - mCurrentMap.getWidth());
+			ind.push_back(index + mCurrentMap.getWidth());
+			ind.push_back(index - mCurrentMap.getWidth() - 1);
+			ind.push_back(index - mCurrentMap.getWidth() + 1);
+			ind.push_back(index + mCurrentMap.getWidth() - 1);
+			ind.push_back(index + mCurrentMap.getWidth() + 1);
+			
+			for(unsigned int it = 0; it < ind.size(); it++)
 			{
-				double delta = (it < 4) ? linear : diagonal;
-				double newDistance = distance + delta + (10 * delta * (double)mCurrentMap.getData(i) / (double)mCostObstacle);
-				if(mCurrentPlan[i] == -1 || newDistance < mCurrentPlan[i])
+				unsigned int i = ind[it];
+				if(mCurrentMap.isFree(i))
 				{
-					queue.insert(Entry(newDistance, i));
-					mCurrentPlan[i] = newDistance;
+					double delta = (it < 4) ? linear : diagonal;
+					double newDistance = distance + delta + (10 * delta * (double)mCurrentMap.getData(i) / (double)mCostObstacle);
+					if(mCurrentPlan[i] == -1 || newDistance < mCurrentPlan[i])
+					{
+						queue.insert(Entry(newDistance, i));
+						mCurrentPlan[i] = newDistance;
+					}
 				}
 			}
 		}
+	}else{
+	
+		// Do full search with aStar-Algorithm
+		while(!queue.empty())
+		{
+			// Get the nearest cell from the queue
+			next = queue.begin();
+			distance = next->first;
+			index = next->second;
+			queue.erase(next);
+		
+			if(mCurrentPlan[index] >= 0 && mCurrentPlan[index] < distance) continue;
+		
+	//		if(index == mStartPoint) break;
+		
+			// Add all adjacent cells
+			if(!mCurrentMap.getCoordinates(x, y, index)) continue;
+			std::vector<unsigned int> ind;
+			ind.push_back(index - 1);
+			ind.push_back(index + 1);
+			ind.push_back(index - mCurrentMap.getWidth());
+			ind.push_back(index + mCurrentMap.getWidth());
+			ind.push_back(index - mCurrentMap.getWidth() - 1);
+			ind.push_back(index - mCurrentMap.getWidth() + 1);
+			ind.push_back(index + mCurrentMap.getWidth() - 1);
+			ind.push_back(index + mCurrentMap.getWidth() + 1);
+			
+			for(unsigned int it = 0; it < ind.size(); it++)
+			{
+				unsigned int i = ind[it];
+				if(mCurrentMap.isFree(i))
+				{
+					double delta = (it < 4) ? linear : diagonal;
+					double newDistance = distance + delta + (10 * delta * (double)mCurrentMap.getData(i) / (double)mCostObstacle) + H(x,y,goal_x,goal_y);
+					if(mCurrentPlan[i] == -1 || newDistance < mCurrentPlan[i])
+					{
+						queue.insert(Entry(newDistance, i));
+						mCurrentPlan[i] = newDistance;
+					}
+				}
+			}
+		}	
+	
 	}
+	
+	
 	
 	if(mCurrentPlan[mStartPoint] < 0)
 	{
@@ -953,3 +1003,9 @@ bool RobotNavigator::setCurrentPosition()
 	mCurrentPositionY = world_y;
 	return true;
 }
+
+
+double RobotNavigator::H(int x, int y, int g_x, int g_y){
+	return std::sqrt((g_x-x)*(g_x-x) + (g_y-y)*(g_y-y));
+}
+
