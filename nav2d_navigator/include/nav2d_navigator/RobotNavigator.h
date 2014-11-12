@@ -9,13 +9,13 @@
 #include <nav2d_navigator/GetFirstMapAction.h>
 #include <nav2d_navigator/LocalizeAction.h>
 
+#include <nav2d_navigator/GridMap.h>
+#include <nav2d_navigator/commands.h>
+#include <nav2d_navigator/MapInflationTool.h>
+#include <nav2d_navigator/ExplorationPlanner.h>
+
 #include <dynamic_reconfigure/server.h>
 #include <nav2d_navigator/searchConfig.h>
-
-#include "GridMap.h"
-#include "commands.h"
-#include "MapInflationTool.h"
-#include "ExplorationPlanner.h"
 
 #include <queue>
 

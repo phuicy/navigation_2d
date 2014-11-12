@@ -9,18 +9,28 @@ add_definitions(-DUSE_TBB)
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
-  nav2d_msgs
   roscpp
-  nav2d_localizer
   tf
+  nav_msgs
+  geometry_msgs
+  visualization_msgs
+  nav2d_msgs
+  nav2d_localizer
 )
 
 list(APPEND CMAKE_MODULE_PATH ${nav2d_karto_SOURCE_DIR}/cmake_modules)
 
+find_package(PkgConfig REQUIRED)
 find_package(Eigen REQUIRED)
 find_package(CSparse REQUIRED)
 find_package(G2O)
 find_package(Cholmod)
+
+# Use Thread-Building-Blocks [OpenKarto]
+pkg_check_modules(TBB tbb)
+if(TBB_FOUND)
+  add_definitions(-DUSE_TBB)
+endif(TBB_FOUND)
 
 if(G2O_FOUND)
   add_definitions(-DUSE_G2O)
@@ -46,10 +56,14 @@ catkin_package(
 
 ## Specify additional locations of header files
 ## Your package locations should be listed before other locations
-include_directories(OpenKarto/source)
+include_directories(
+  OpenKarto/source
+  ${Eigen_INCLUDE_DIRS}
+  ${TBB_INCLUDE_DIRS}
+)
 
 ## Build OpenKarto library
-SET(KARTO_SOURCE_FILES
+set(KARTO_SOURCE_FILES
   OpenKarto/source/Any.cpp
   OpenKarto/source/Event.cpp
   OpenKarto/source/Exception.cpp
