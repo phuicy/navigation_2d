@@ -9,6 +9,9 @@
 #include <nav2d_navigator/GetFirstMapAction.h>
 #include <nav2d_navigator/LocalizeAction.h>
 
+#include <dynamic_reconfigure/server.h>
+#include <nav2d_navigator/searchConfig.h>
+
 #include "GridMap.h"
 #include "commands.h"
 #include "MapInflationTool.h"
@@ -44,6 +47,7 @@ private:
 	bool createPlan();
 	void publishPlan();
 	double H(int x, int y, int g_x, int g_y);
+    void cfgCallback(nav2d_navigator::searchConfig &config, uint32_t level);
 
 	// Everything related to ROS
 	tf::TransformListener mTfListener;
@@ -102,4 +106,8 @@ private:
 	double mExplorationGoalDistance;
 	double mMinReplanningPeriod;
 	double mMaxReplanningPeriod;
+
+
+    dynamic_reconfigure::Server<nav2d_navigator::searchConfig> server;
+    dynamic_reconfigure::Server<nav2d_navigator::searchConfig>::CallbackType f;
 };

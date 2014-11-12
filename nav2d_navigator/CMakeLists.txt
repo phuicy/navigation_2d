@@ -12,6 +12,7 @@ find_package(catkin REQUIRED COMPONENTS
   geometry_msgs
   nav2d_operator
   nav2d_msgs
+  dynamic_reconfigure
 )
 
 ################################################
@@ -28,6 +29,10 @@ add_action_files(
 )
 
 add_service_files(FILES SendCommand.srv)
+
+generate_dynamic_reconfigure_options(
+  cfg/search.cfg
+)
 
 ## Generate added messages and services with any dependencies listed here
 generate_messages(
@@ -52,6 +57,7 @@ catkin_package(
 	 geometry_msgs
 	 nav2d_msgs
     nav2d_operator
+   dynamic_reconfigure
 )
 
 ###########
@@ -74,8 +80,8 @@ add_executable(get_map_client src/get_map_client.cpp)
 
 ## Add cmake target dependencies of the executable/library
 ## as an example, message headers may need to be generated before nodes
-add_dependencies(RobotNavigator nav2d_navigator_generate_messages_cpp ${catkin_EXPORTED_TARGETS})
-add_dependencies(navigator nav2d_navigator_generate_messages_cpp)
+add_dependencies(RobotNavigator nav2d_navigator_generate_messages_cpp ${catkin_EXPORTED_TARGETS} ${PROJECT_NAME}_gencfg)
+add_dependencies(navigator nav2d_navigator_generate_messages_cpp ${PROJECT_NAME}_gencfg)
 add_dependencies(set_goal_client nav2d_navigator_generate_messages_cpp ${catkin_EXPORTED_TARGETS})
 add_dependencies(explore_client nav2d_navigator_generate_messages_cpp)
 add_dependencies(get_map_client nav2d_navigator_generate_messages_cpp)

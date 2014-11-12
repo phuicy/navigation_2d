@@ -5,11 +5,12 @@
   <Project Name="nav2d_operator" Path="nav2d_operator/nav2d_operator.project"/>
   <Project Name="nav2d_navigator" Path="nav2d_navigator/nav2d_navigator.project" Active="No"/>
   <Project Name="nav2d_localizer" Path="nav2d_localizer/nav2d_localizer.project"/>
-  <Project Name="nav2d_karto" Path="nav2d_karto/nav2d_karto.project"/>
   <Project Name="nav2d_remote" Path="nav2d_remote/nav2d_remote.project"/>
   <Project Name="nav2d_tutorials" Path="nav2d_tutorials/nav2d_tutorials.project"/>
   <Environment>
-    <![CDATA[]]>
+    <![CDATA[
+  
+  ]]>
   </Environment>
   <Project Name="nav2d_exploration" Path="nav2d_exploration/nav2d_exploration.project"/>
   <BuildMatrix>

@@ -52,6 +52,9 @@ RobotNavigator::RobotNavigator()
 	robotNode.param("localize_action_topic", mLocalizeActionTopic, std::string(NAV_LOCALIZE_ACTION));
 	robotNode.param("search_algorithm", mDijkstraFlag, true);
 
+    f = boost::bind(&RobotNavigator::cfgCallback,this, _1, _2);
+    server.setCallback(f);
+
 
 	// Apply tf_prefix to all used frame-id's
 	mRobotFrame = mTfListener.resolve(mRobotFrame);
@@ -104,6 +107,11 @@ RobotNavigator::~RobotNavigator()
 	delete mGetMapActionServer;
 	mExplorationPlanner.reset();
 	delete mPlanLoader;
+}
+
+void RobotNavigator::cfgCallback(nav2d_navigator::searchConfig &config, uint32_t level)
+{
+	mDijkstraFlag = config.Search_Algorithm;
 }
 
 bool RobotNavigator::getMap()
